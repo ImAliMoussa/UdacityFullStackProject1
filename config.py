@@ -11,3 +11,4 @@ DEBUG = True
 
 
 SQLALCHEMY_DATABASE_URI = 'postgres://postgres:changeme@localhost:5432/fyyur'
+SQLALCHEMY_TRACK_MODIFICATIONS = False

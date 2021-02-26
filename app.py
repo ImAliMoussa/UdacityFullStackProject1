@@ -474,7 +474,7 @@ def shows():
             "artist_id": show.Artist.id,
             "artist_name": show.Artist.name,
             "artist_image_link": show.Artist.image_link,
-            "start_time": show.Show.start_time.strftime("%d/%m/%Y, %H:%M")
+            "start_time": str(show.Show.start_time)
         }
         data.append(cur)
     return render_template('pages/shows.html', shows=data)
