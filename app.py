@@ -201,16 +201,15 @@ def create_venue_submission():
         state = request.form['state']
         address = request.form['address']
         phone = request.form['phone']
-        genres = request.form['genres']
+        genres = request.form.getlist('genres')
         facebook_link = request.form['facebook_link']
 
-        # TODO add genres
         venue = Venue(name=name,
                       city=city,
                       state=state,
                       address=address,
                       phone=phone,
-                      # genres=genres,
+                      genres=genres,
                       image_link="https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
                       facebook_link=facebook_link)
         # try to insert into database
@@ -380,7 +379,7 @@ def edit_artist_submission(artist_id):
         artist.city = request.form['city']
         artist.state = request.form['state']
         artist.phone = request.form['phone']
-        artist.genres = request.form['genres']
+        artist.genres = request.form.getlist('genres')
         artist.facebook_link = request.form['facebook_link']
 
         # commit
@@ -419,8 +418,7 @@ def edit_venue_submission(venue_id):
         venue.state = request.form['state']
         venue.address = request.form['address']
         venue.phone = request.form['phone']
-        # TODO add genres
-        # venue.genres = request.form['genres']
+        venue.genres = request.form.getlist('genres')
         venue.facebook_link = request.form['facebook_link']
         db.session.commit()
 
@@ -456,7 +454,7 @@ def create_artist_submission():
         city = request.form['city']
         state = request.form['state']
         phone = request.form['phone']
-        genres = request.form['genres']
+        genres = request.form.getlist('genres')
         facebook_link = request.form['facebook_link']
 
         # create a new artist
