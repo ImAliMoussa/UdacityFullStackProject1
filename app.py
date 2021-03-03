@@ -53,29 +53,6 @@ def index():
 
 @app.route('/venues')
 def venues():
-    # TODO num_shows should be aggregated based on number of upcoming shows per venue.
-    # data = [{
-    #     "city": "San Francisco",
-    #     "state": "CA",
-    #     "venues": [{
-    #         "id": 1,
-    #         "name": "The Musical Hop",
-    #         "num_upcoming_shows": 0,
-    #     }, {
-    #         "id": 3,
-    #         "name": "Park Square Live Music & Coffee",
-    #         "num_upcoming_shows": 1,
-    #     }]
-    # }, {
-    #     "city": "New York",
-    #     "state": "NY",
-    #     "venues": [{
-    #         "id": 2,
-    #         "name": "The Dueling Pianos Bar",
-    #         "num_upcoming_shows": 0,
-    #     }]
-    # }]
-
     # get data from database
     all_venues = Venue.query.all()
 
@@ -93,10 +70,15 @@ def venues():
             venues_dict[key] = []
 
         # choose only data we want and append to dictionary's list
+        time_now = datetime.utcnow()
+
+        # either this or aggregate using postgres but I thought I'd decrease the calls to database
+        upcoming_shows = list(filter(lambda show: show.start_time > time_now, venue.shows))
+
         curr_venue = {
             "id": venue.id,
             "name": venue.name,
-            "num_upcoming_shows": 0
+            "num_upcoming_shows": len(upcoming_shows)
         }
         venues_dict[key].append(curr_venue)
 
