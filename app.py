@@ -53,30 +53,68 @@ def index():
 
 @app.route('/venues')
 def venues():
-    # TODO: replace with real venues data.
-    #       num_shows should be aggregated based on number of upcoming shows per venue.
-    data = [{
-        "city": "San Francisco",
-        "state": "CA",
-        "venues": [{
-            "id": 1,
-            "name": "The Musical Hop",
-            "num_upcoming_shows": 0,
-        }, {
-            "id": 3,
-            "name": "Park Square Live Music & Coffee",
-            "num_upcoming_shows": 1,
-        }]
-    }, {
-        "city": "New York",
-        "state": "NY",
-        "venues": [{
-            "id": 2,
-            "name": "The Dueling Pianos Bar",
-            "num_upcoming_shows": 0,
-        }]
-    }]
-    return render_template('pages/venues.html', areas=data)
+    # TODO num_shows should be aggregated based on number of upcoming shows per venue.
+    # data = [{
+    #     "city": "San Francisco",
+    #     "state": "CA",
+    #     "venues": [{
+    #         "id": 1,
+    #         "name": "The Musical Hop",
+    #         "num_upcoming_shows": 0,
+    #     }, {
+    #         "id": 3,
+    #         "name": "Park Square Live Music & Coffee",
+    #         "num_upcoming_shows": 1,
+    #     }]
+    # }, {
+    #     "city": "New York",
+    #     "state": "NY",
+    #     "venues": [{
+    #         "id": 2,
+    #         "name": "The Dueling Pianos Bar",
+    #         "num_upcoming_shows": 0,
+    #     }]
+    # }]
+
+    # get data from database
+    all_venues = Venue.query.all()
+
+    # use a dict to speed up finding venues with same (city, state)
+    # each (city, state) maps to a list
+    venues_dict = {}
+
+    # loop over all data from database
+    for venue in all_venues:
+        # create groups of (city, state) tuple
+        key = (venue.city, venue.state)
+
+        # create a list of venues if one was not found for current (city, state)
+        if key not in venues_dict:
+            venues_dict[key] = []
+
+        # choose only data we want and append to dictionary's list
+        curr_venue = {
+            "id": venue.id,
+            "name": venue.name,
+            "num_upcoming_shows": 0
+        }
+        venues_dict[key].append(curr_venue)
+
+    # areas will be sent to view to be shown to user
+    areas = []
+
+    for key, venues_in_city in venues_dict.items():
+        # destructure the key
+        city, state = key
+
+        new_area = {
+            "city": city,
+            "state": state,
+            "venues": venues_in_city
+        }
+        areas.append(new_area)
+
+    return render_template('pages/venues.html', areas=areas)
 
 
 @app.route('/venues/search', methods=['POST'])
@@ -203,14 +241,14 @@ def create_venue_submission():
         phone = request.form['phone']
         genres = request.form.getlist('genres')
         facebook_link = request.form['facebook_link']
-
+        image_link = "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60"
         venue = Venue(name=name,
                       city=city,
                       state=state,
                       address=address,
                       phone=phone,
                       genres=genres,
-                      image_link="https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
+                      image_link=image_link,
                       facebook_link=facebook_link)
         # try to insert into database
         data = db.session.add(venue)
