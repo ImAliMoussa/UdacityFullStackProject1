@@ -88,7 +88,7 @@ def venues():
         # create groups of (city, state) tuple
         key = (venue.city, venue.state)
 
-        # create a list of venues if one was not found for current (city, state)
+        # create a list of venues if one wasn't found for current (city, state) group
         if key not in venues_dict:
             venues_dict[key] = []
 
@@ -451,6 +451,7 @@ def edit_venue_submission(venue_id):
     try:
         # get data from post request
         venue = Venue.query.get(venue_id)
+
         venue.name = request.form['name']
         venue.city = request.form['city']
         venue.state = request.form['state']
@@ -458,6 +459,7 @@ def edit_venue_submission(venue_id):
         venue.phone = request.form['phone']
         venue.genres = request.form.getlist('genres')
         venue.facebook_link = request.form['facebook_link']
+
         db.session.commit()
 
         # on successful db edit, flash success
@@ -563,16 +565,16 @@ def shows():
     #     "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
     #     "start_time": "2035-04-15T20:00:00.000Z"
     # }]
-    shows = db.session.query(Show, Venue, Artist).join(Venue).join(Artist).all()
+    all_shows = Show.query.all()
     data = []
-    for show in shows:
+    for show in all_shows:
         cur = {
-            "venue_id": show.Venue.id,
-            "venue_name": show.Venue.name,
-            "artist_id": show.Artist.id,
-            "artist_name": show.Artist.name,
-            "artist_image_link": show.Artist.image_link,
-            "start_time": str(show.Show.start_time)
+            "venue_id": show.venue.id,
+            "venue_name": show.venue.name,
+            "artist_id": show.artist.id,
+            "artist_name": show.artist.name,
+            "artist_image_link": show.artist.image_link,
+            "start_time": str(show.start_time)
         }
         data.append(cur)
     return render_template('pages/shows.html', shows=data)
