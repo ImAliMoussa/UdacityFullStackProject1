@@ -15,6 +15,7 @@ from flask import (
     url_for
 )
 from flask_moment import Moment
+from sqlalchemy.exc import SQLAlchemyError
 
 from forms import *
 from models import (
@@ -223,7 +224,8 @@ def create_venue_submission():
 
         # on successful db insert, flash success
         flash('Venue ' + request.form['name'] + ' was successfully listed!')
-    except:
+    except SQLAlchemyError:
+        # source: https://stackoverflow.com/questions/2193670/catching-sqlalchemy-exceptions/4430982
         # unsuccessful db insert, flash an error instead.
         db.session.rollback()
         print(sys.exc_info())
@@ -247,7 +249,7 @@ def delete_venue(venue_id):
 
         # on successful db delete, flash success
         flash('Venue ' + venue_name + ' was successfully deleted!')
-    except:
+    except SQLAlchemyError:
         # unsuccessful db delete, flash an error instead.
         db.session.rollback()
         print(sys.exc_info())
@@ -366,7 +368,7 @@ def edit_artist_submission(artist_id):
 
         # on successful db edit, flash success
         flash('Artist ' + artist.name + ' was successfully edited!')
-    except:
+    except SQLAlchemyError:
         # unsuccessful db edit, flash an error instead.
         db.session.rollback()
         print(sys.exc_info())
@@ -410,7 +412,7 @@ def edit_venue_submission(venue_id):
 
         # on successful db edit, flash success
         flash('Venue ' + request.form['name'] + ' was successfully edited!')
-    except:
+    except SQLAlchemyError:
         # unsuccessful db edit, flash an error instead.
         db.session.rollback()
         print(sys.exc_info())
@@ -464,7 +466,7 @@ def create_artist_submission():
 
         # on successful db insert, flash success
         flash('Artist ' + request.form['name'] + ' was successfully listed!')
-    except:
+    except SQLAlchemyError:
         # unsuccessful db insert, flash an error instead.
         db.session.rollback()
         print(sys.exc_info())
@@ -520,7 +522,7 @@ def create_show_submission():
 
         # on successful db insert, flash success
         flash('Show was successfully listed!')
-    except:
+    except SQLAlchemyError:
         # unsuccessful db insert, flash an error instead.
         db.session.rollback()
         print(sys.exc_info())
