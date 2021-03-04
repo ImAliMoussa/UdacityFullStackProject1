@@ -200,7 +200,7 @@ class ArtistForm(Form):
         'phone', validators=[DataRequired(), Regexp(r'^[0-9\-\+]+$')]
     )
     image_link = StringField(
-        'image_link', validators=[DataRequired()]
+        'image_link'
     )
     genres = SelectMultipleField(
         'genres', validators=[DataRequired(), validate_multiselect],

@@ -180,7 +180,7 @@ def create_venue_submission():
     venue_form = VenueForm(request.form, meta={"csrf": False})
 
     if not venue_form.validate():
-        flash('error validating venue form ' + venue_form.errors)
+        flash('error validating venue form ' + str(venue_form.errors))
         return render_template('pages/home.html')
 
     try:
@@ -329,6 +329,14 @@ def edit_artist(artist_id):
 def edit_artist_submission(artist_id):
     # artist record with ID <artist_id> using the new attributes
     data = None
+
+    artist_form = ArtistForm(request.form, meta={"csrf": False})
+
+    if not artist_form.validate():
+        flash('error validating artist form ' + str(artist_form.errors))
+        return render_template('pages/home.html')
+
+
     try:
         # get artist from database
         artist = Artist.query.get(artist_id)
@@ -368,6 +376,11 @@ def edit_venue(venue_id):
 def edit_venue_submission(venue_id):
     # take values from the form submitted, and update existing
     # venue record with ID <venue_id> using the new attributes
+    venue_form = VenueForm(request.form, meta={"csrf": False})
+
+    if not venue_form.validate():
+        flash('error validating venue form ' + str(venue_form.errors))
+        return render_template('pages/home.html')
 
     try:
         # get data from post request
@@ -408,7 +421,13 @@ def create_artist_form():
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
     # called upon submitting the new artist listing form
-    res = None
+    artist_form = ArtistForm(request.form, meta={"csrf": False})
+
+    if not artist_form.validate():
+        flash('error validating artist form ' + str(artist_form.errors))
+        return render_template('pages/home.html')
+
+
     try:
         # get data from post request
         name = request.form['name']
