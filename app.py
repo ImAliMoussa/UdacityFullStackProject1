@@ -199,26 +199,9 @@ def create_venue_submission():
         return render_template('pages/home.html')
 
     try:
-        # get data from post request
-        name = request.form['name']
-        city = request.form['city']
-        state = request.form['state']
-        address = request.form['address']
-        phone = request.form['phone']
-        genres = request.form.getlist('genres')
-        facebook_link = request.form['facebook_link']
-        website = "https://www.google.com"
+        venue = Venue()
+        venue_form.populate_obj(venue)
 
-        image_link = "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60"
-        venue = Venue(name=name,
-                      city=city,
-                      state=state,
-                      address=address,
-                      phone=phone,
-                      website=website,
-                      genres=genres,
-                      image_link=image_link,
-                      facebook_link=facebook_link)
         # try to insert into database
         db.session.add(venue)
         db.session.commit()
@@ -357,12 +340,7 @@ def edit_artist_submission(artist_id):
         artist = Artist.query.get(artist_id)
 
         # update attributes
-        artist.name = request.form['name']
-        artist.city = request.form['city']
-        artist.state = request.form['state']
-        artist.phone = request.form['phone']
-        artist.genres = request.form.getlist('genres')
-        artist.facebook_link = request.form['facebook_link']
+        artist_form.populate_obj(artist)
 
         # commit
         db.session.commit()
@@ -373,7 +351,7 @@ def edit_artist_submission(artist_id):
         # unsuccessful db edit, flash an error instead.
         db.session.rollback()
         print(sys.exc_info())
-        flash('An error occurred. Artist ' + data.name + ' could not be edited.')
+        flash('An error occurred. Artist ' + request.form.get('name') + ' could not be edited.')
     finally:
         db.session.close()
 
@@ -391,6 +369,7 @@ def edit_venue(venue_id):
 def edit_venue_submission(venue_id):
     # take values from the form submitted, and update existing
     # venue record with ID <venue_id> using the new attributes
+    # insert form data as a new Venue record in the db
     venue_form = VenueForm(request.form, meta={"csrf": False})
 
     if not venue_form.validate():
@@ -398,26 +377,21 @@ def edit_venue_submission(venue_id):
         return render_template('pages/home.html')
 
     try:
-        # get data from post request
         venue = Venue.query.get(venue_id)
+        venue_form.populate_obj(venue)
 
-        venue.name = request.form['name']
-        venue.city = request.form['city']
-        venue.state = request.form['state']
-        venue.address = request.form['address']
-        venue.phone = request.form['phone']
-        venue.genres = request.form.getlist('genres')
-        venue.facebook_link = request.form['facebook_link']
-
+        # try to insert into database
+        db.session.add(venue)
         db.session.commit()
 
-        # on successful db edit, flash success
+        # on successful db insert, flash success
         flash('Venue ' + request.form['name'] + ' was successfully edited!')
     except SQLAlchemyError:
-        # unsuccessful db edit, flash an error instead.
+        # source: https://stackoverflow.com/questions/2193670/catching-sqlalchemy-exceptions/4430982
+        # unsuccessful db insert, flash an error instead.
         db.session.rollback()
         print(sys.exc_info())
-        flash('An error occurred. Venue with id' + venue_id + ' could not be edited.')
+        flash('An error occurred. Venue ' + request.form['name'] + ' could not be edited.')
     finally:
         db.session.close()
 
@@ -443,23 +417,9 @@ def create_artist_submission():
         return render_template('pages/home.html')
 
     try:
-        # get data from post request
-        name = request.form['name']
-        city = request.form['city']
-        state = request.form['state']
-        phone = request.form['phone']
-        genres = request.form.getlist('genres')
-        facebook_link = request.form['facebook_link']
-
         # create a new artist
-        artist = Artist(name=name,
-                        city=city,
-                        state=state,
-                        genres=genres,
-                        phone=phone,
-                        website='https://www.facebook.com',
-                        image_link='https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60',
-                        facebook_link=facebook_link)
+        artist = Artist()
+        artist_form.populate_obj(artist)
 
         # try to insert into database
         db.session.add(artist)
