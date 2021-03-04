@@ -72,7 +72,7 @@
 
 
             function seeking_description_visibility(e) {
-                const checkbox_checked = (e && e.target.checked) || seeking_talent.checked;
+                const checkbox_checked = seeking_talent.checked;
                 if (checkbox_checked) {
                     seeking_description.style.display = "block";
                     seeking_description_field.setAttribute("required", "");

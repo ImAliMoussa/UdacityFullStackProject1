@@ -32,7 +32,51 @@
                 <label for="genres">Facebook Link</label>
                 {{ form.facebook_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
             </div>
-            <input type="submit" value="Edit Artist" class="btn btn-primary btn-lg btn-block">
+            <div class="form-group">
+                <label for="website">Website</label>
+                {{ form.website(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+            </div>
+
+            <div class="form-group">
+                <label for="image_link">Image Link</label>
+                {{ form.image_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+            </div>
+
+
+            <div class="form-group">
+                {{ form.seeking_venue(class_ = 'form-check-input', autofocus = true, id="seeking_venue") }}
+                <label for="seeking_venue">Seeking Venue</label>
+            </div>
+
+            <div class="form-group" style="display: none" id="seeking-description">
+                <label for="seeking-description">Seeking Description</label>
+                {{ form.seeking_description(class_ = 'form-control', autofocus = true, id="seeking-description-field") }}
+            </div>
+
+            <input type="submit" value="Create Venue" class="btn btn-primary btn-lg btn-block">
         </form>
     </div>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            const seeking_venue = document.getElementById('seeking_venue');
+            const seeking_description = document.getElementById('seeking-description');
+            const seeking_description_field = document.getElementById('seeking-description-field');
+
+
+            function seeking_description_visibility(e) {
+                const checkbox_checked = seeking_venue.checked;
+                if (checkbox_checked) {
+                    seeking_description.style.display = "block";
+                    seeking_description_field.setAttribute("required", "");
+                } else {
+                    seeking_description.style.display = "none";
+                    seeking_description_field.removeAttribute("required");
+                }
+            }
+
+            seeking_venue.onclick = seeking_description_visibility;
+            seeking_description_visibility();
+        })
+    </script>
 {% endblock %}
