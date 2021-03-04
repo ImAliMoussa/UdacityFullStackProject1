@@ -1,22 +1,34 @@
 from datetime import datetime
 
+from flask import flash
 from flask_wtf import Form
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField
-from wtforms.validators import DataRequired, URL
+from wtforms.validators import DataRequired, URL, ValidationError, Regexp
 
 
 class ShowForm(Form):
     artist_id = StringField(
-        'artist_id'
+        'artist_id', validators=[DataRequired()]
     )
     venue_id = StringField(
-        'venue_id'
+        'venue_id', validators=[DataRequired()]
     )
     start_time = DateTimeField(
         'start_time',
         validators=[DataRequired()],
         default=datetime.today()
     )
+
+
+def validate_multiselect(form, field):
+    data = field.data
+    possibilites = [choice[0] for choice in field.choices]
+    if type(data) != list:
+        data = [data]
+    for entry in data:
+        if entry not in possibilites:
+            flash('error')
+            return ValidationError(message=f'{entry} not in {possibilites}')
 
 
 class VenueForm(Form):
@@ -26,8 +38,9 @@ class VenueForm(Form):
     city = StringField(
         'city', validators=[DataRequired()]
     )
+
     state = SelectField(
-        'state', validators=[DataRequired()],
+        'state', validators=[DataRequired(), validate_multiselect],
         choices=[
             ('AL', 'AL'),
             ('AK', 'AK'),
@@ -86,14 +99,13 @@ class VenueForm(Form):
         'address', validators=[DataRequired()]
     )
     phone = StringField(
-        'phone'
+        'phone', validators=[DataRequired(), Regexp(r'^[0-9\-\+]+$')]
     )
     image_link = StringField(
         'image_link'
     )
     genres = SelectMultipleField(
-        # TODO implement enum restriction
-        'genres', validators=[DataRequired()],
+        'genres', validators=[DataRequired(), validate_multiselect],
         choices=[
             ('Alternative', 'Alternative'),
             ('Blues', 'Blues'),
@@ -117,7 +129,7 @@ class VenueForm(Form):
         ]
     )
     facebook_link = StringField(
-        'facebook_link', validators=[URL()]
+        'facebook_link', validators=[DataRequired(), URL()]
     )
 
 
@@ -129,7 +141,7 @@ class ArtistForm(Form):
         'city', validators=[DataRequired()]
     )
     state = SelectField(
-        'state', validators=[DataRequired()],
+        'state', validators=[DataRequired(), validate_multiselect],
         choices=[
             ('AL', 'AL'),
             ('AK', 'AK'),
@@ -185,15 +197,13 @@ class ArtistForm(Form):
         ]
     )
     phone = StringField(
-        # TODO implement validation logic for state
-        'phone'
+        'phone', validators=[DataRequired(), Regexp(r'^[0-9\-\+]+$')]
     )
     image_link = StringField(
-        'image_link'
+        'image_link', validators=[DataRequired()]
     )
     genres = SelectMultipleField(
-        # TODO implement enum restriction
-        'genres', validators=[DataRequired()],
+        'genres', validators=[DataRequired(), validate_multiselect],
         choices=[
             ('Alternative', 'Alternative'),
             ('Blues', 'Blues'),
@@ -217,8 +227,7 @@ class ArtistForm(Form):
         ]
     )
     facebook_link = StringField(
-        # TODO implement enum restriction
-        'facebook_link', validators=[URL()]
+        'facebook_link', validators=[DataRequired(), URL()]
     )
 
 # TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM

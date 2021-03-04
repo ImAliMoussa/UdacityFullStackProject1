@@ -177,7 +177,12 @@ def create_venue_form():
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
     # insert form data as a new Venue record in the db
-    data = None
+    venue_form = VenueForm(request.form, meta={"csrf": False})
+
+    if not venue_form.validate():
+        flash('error validating venue form ' + venue_form.errors)
+        return render_template('pages/home.html')
+
     try:
         # get data from post request
         name = request.form['name']
@@ -187,17 +192,20 @@ def create_venue_submission():
         phone = request.form['phone']
         genres = request.form.getlist('genres')
         facebook_link = request.form['facebook_link']
+        website = "https://www.google.com"
+
         image_link = "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60"
         venue = Venue(name=name,
                       city=city,
                       state=state,
                       address=address,
                       phone=phone,
+                      website=website,
                       genres=genres,
                       image_link=image_link,
                       facebook_link=facebook_link)
         # try to insert into database
-        data = db.session.add(venue)
+        db.session.add(venue)
         db.session.commit()
 
         # on successful db insert, flash success
@@ -206,7 +214,7 @@ def create_venue_submission():
         # unsuccessful db insert, flash an error instead.
         db.session.rollback()
         print(sys.exc_info())
-        flash('An error occurred. Venue ' + data.name + ' could not be listed.')
+        flash('An error occurred. Venue ' + request.form['name'] + ' could not be listed.')
     finally:
         db.session.close()
 
