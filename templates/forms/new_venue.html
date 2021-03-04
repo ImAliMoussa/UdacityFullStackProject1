@@ -33,11 +33,57 @@
                 <small>Ctrl+Click to select multiple</small>
                 {{ form.genres(class_ = 'form-control', placeholder='Genres, separated by commas', autofocus = true) }}
             </div>
+
             <div class="form-group">
-                <label for="genres">Facebook Link</label>
+                <label for="facebook_link">Facebook Link</label>
                 {{ form.facebook_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
             </div>
+
+            <div class="form-group">
+                <label for="website">Website</label>
+                {{ form.website(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+            </div>
+
+            <div class="form-group">
+                <label for="image_link">Image Link</label>
+                {{ form.image_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+            </div>
+
+
+            <div class="form-group">
+                {{ form.seeking_talent(class_ = 'form-check-input', autofocus = true, id="seeking-talent") }}
+                <label for="seeking_talent">Seeking Talent</label>
+            </div>
+
+            <div class="form-group" style="display: none" id="seeking-description">
+                <label for="seeking-description">Seeking Description</label>
+                {{ form.seeking_description(class_ = 'form-control', autofocus = true, id="seeking-description-field") }}
+            </div>
+
             <input type="submit" value="Create Venue" class="btn btn-primary btn-lg btn-block">
         </form>
     </div>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            const seeking_talent = document.getElementById('seeking-talent');
+            const seeking_description = document.getElementById('seeking-description');
+            const seeking_description_field = document.getElementById('seeking-description-field');
+
+
+            function seeking_description_visibility(e) {
+                const checkbox_checked = (e && e.target.checked) || seeking_talent.checked;
+                if (checkbox_checked) {
+                    seeking_description.style.display = "block";
+                    seeking_description_field.setAttribute("required", "");
+                } else {
+                    seeking_description.style.display = "none";
+                    seeking_description_field.removeAttribute("required");
+                }
+            }
+
+            seeking_talent.onclick = seeking_description_visibility;
+            seeking_description_visibility();
+        })
+    </script>
 {% endblock %}

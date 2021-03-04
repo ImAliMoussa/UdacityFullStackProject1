@@ -8,13 +8,13 @@ from wtforms import (
     StringField,
     SelectField,
     SelectMultipleField,
-    DateTimeField
+    DateTimeField,
+    BooleanField
 )
 from wtforms.validators import (
     DataRequired,
     URL,
-    ValidationError,
-    Regexp
+    ValidationError
 )
 
 
@@ -32,7 +32,7 @@ class ShowForm(Form):
     )
 
 
-def validate_multiselect(field):
+def validate_multiselect(form, field):
     data = field.data
     possibilites = [choice[0] for choice in field.choices]
     if type(data) != list:
@@ -43,7 +43,7 @@ def validate_multiselect(field):
             raise ValidationError(message=f'{entry} not in {possibilites}')
 
 
-def validate_phonenumber(field):
+def validate_phonenumber(form, field):
     def invalid_phone_handler():
         flash('Invalid phone number')
         raise ValidationError(f'Invalid phone number')
@@ -54,6 +54,26 @@ def validate_phonenumber(field):
             invalid_phone_handler()
     except NumberParseException:
         invalid_phone_handler()
+
+
+def validate_artist_seeking_description(form, field):
+    seeking = form['seeking_venue'].data
+    if seeking and len(field.data) == 0:
+        flash('Empty seeking description field')
+        raise ValidationError(f'Empty seeking description field')
+    else:
+        # empty out seeking description
+        form['seeking_description'].data = ""
+
+
+def validate_venue_seeking_description(form, field):
+    seeking = form['seeking_talent'].data
+    if seeking and len(field.data) == 0:
+        flash('Empty seeking description field')
+        raise ValidationError(f'Empty seeking description field')
+    else:
+        # empty out seeking description
+        form['seeking_description'].data = ""
 
 
 class VenueForm(Form):
@@ -127,7 +147,7 @@ class VenueForm(Form):
         'phone', validators=[DataRequired(), validate_phonenumber]
     )
     image_link = StringField(
-        'image_link'
+        'image_link', validators=[DataRequired(), URL()]
     )
     genres = SelectMultipleField(
         'genres', validators=[DataRequired(), validate_multiselect],
@@ -155,6 +175,15 @@ class VenueForm(Form):
     )
     facebook_link = StringField(
         'facebook_link', validators=[DataRequired(), URL()]
+    )
+    website = StringField(
+        'website', validators=[DataRequired(), URL()]
+    )
+    seeking_talent = BooleanField(
+        'seeking_venue'
+    )
+    seeking_description = StringField(
+        'seeking_description', validators=[validate_venue_seeking_description]
     )
 
 
@@ -225,7 +254,7 @@ class ArtistForm(Form):
         'phone', validators=[DataRequired(), validate_phonenumber]
     )
     image_link = StringField(
-        'image_link'
+        'image_link', validators=[DataRequired(), URL()]
     )
     genres = SelectMultipleField(
         'genres', validators=[DataRequired(), validate_multiselect],
@@ -253,6 +282,15 @@ class ArtistForm(Form):
     )
     facebook_link = StringField(
         'facebook_link', validators=[DataRequired(), URL()]
+    )
+    website = StringField(
+        'website', validators=[DataRequired(), URL()]
+    )
+    seeking_venue = BooleanField(
+        'seeking_venue'
+    )
+    seeking_description = StringField(
+        'seeking_description', validators=[validate_artist_seeking_description]
     )
 
 # TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM

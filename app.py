@@ -32,6 +32,7 @@ from models import (
 # ----------------------------------------------------------------------------#
 
 app.config.from_object(DatabaseURI())
+app.config.from_object('config')
 moment = Moment(app)
 db.init_app(app)
 
