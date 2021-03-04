@@ -8,11 +8,22 @@ from logging import Formatter, FileHandler
 
 import babel
 import dateutil.parser
-from flask import render_template, request, flash, redirect, url_for
+from flask import (
+    render_template,
+    request,
+    redirect,
+    url_for
+)
 from flask_moment import Moment
 
 from forms import *
-from models import app, db, Venue, Show, Artist
+from models import (
+    app,
+    db,
+    Venue,
+    Show,
+    Artist
+)
 
 # ----------------------------------------------------------------------------#
 # App Config.
@@ -45,7 +56,9 @@ app.jinja_env.filters['datetime'] = format_datetime
 
 @app.route('/')
 def index():
-    return render_template('pages/home.html')
+    venues = Venue.query.order_by(Venue.created_date.desc()).limit(10).all()
+    artists = Artist.query.order_by(Artist.created_date).limit(10).all()
+    return render_template('pages/home.html', venues=venues, artists=artists)
 
 
 #  Venues
@@ -336,7 +349,6 @@ def edit_artist_submission(artist_id):
         flash('error validating artist form ' + str(artist_form.errors))
         return render_template('pages/home.html')
 
-
     try:
         # get artist from database
         artist = Artist.query.get(artist_id)
@@ -426,7 +438,6 @@ def create_artist_submission():
     if not artist_form.validate():
         flash('error validating artist form ' + str(artist_form.errors))
         return render_template('pages/home.html')
-
 
     try:
         # get data from post request
