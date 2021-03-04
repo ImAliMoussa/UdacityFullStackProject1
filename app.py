@@ -533,9 +533,34 @@ def create_show_submission():
     return render_template('pages/home.html')
 
 
+@app.errorhandler(400)
+def bad_request_error(error):
+    return render_template('errors/400.html', message='Bad Request'), 400
+
+
+@app.errorhandler(401)
+def unauthorized_error(error):
+    return render_template('errors/401.html', message='Unauthorized'), 401
+
+
+@app.errorhandler(403)
+def forbidden_error(error):
+    return render_template('errors/403.html', message='Forbidden'), 403
+
+
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('errors/404.html'), 404
+
+
+@app.errorhandler(405)
+def invalid_method_error(error):
+    return render_template('errors/405.html', message='Invalid Method'), 405
+
+
+@app.errorhandler(409)
+def duplicate_resource_error(error):
+    return render_template('errors/409.html', message='Duplicate Resource'), 409
 
 
 @app.errorhandler(500)
