@@ -17,6 +17,7 @@ from flask import (
 from flask_moment import Moment
 from sqlalchemy.exc import SQLAlchemyError
 
+from config import DatabaseURI
 from forms import *
 from models import (
     app,
@@ -30,7 +31,7 @@ from models import (
 # App Config.
 # ----------------------------------------------------------------------------#
 
-app.config.from_object('config')
+app.config.from_object(DatabaseURI())
 moment = Moment(app)
 db.init_app(app)
 
