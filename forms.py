@@ -1,9 +1,21 @@
 from datetime import datetime
 
+import phonenumbers
 from flask import flash
 from flask_wtf import Form
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField
-from wtforms.validators import DataRequired, URL, ValidationError, Regexp
+from phonenumbers import NumberParseException
+from wtforms import (
+    StringField,
+    SelectField,
+    SelectMultipleField,
+    DateTimeField
+)
+from wtforms.validators import (
+    DataRequired,
+    URL,
+    ValidationError,
+    Regexp
+)
 
 
 class ShowForm(Form):
@@ -20,7 +32,7 @@ class ShowForm(Form):
     )
 
 
-def validate_multiselect(form, field):
+def validate_multiselect(field):
     data = field.data
     possibilites = [choice[0] for choice in field.choices]
     if type(data) != list:
@@ -28,7 +40,20 @@ def validate_multiselect(form, field):
     for entry in data:
         if entry not in possibilites:
             flash('error')
-            return ValidationError(message=f'{entry} not in {possibilites}')
+            raise ValidationError(message=f'{entry} not in {possibilites}')
+
+
+def validate_phonenumber(field):
+    def invalid_phone_handler():
+        flash('Invalid phone number')
+        raise ValidationError(f'Invalid phone number')
+
+    try:
+        input_number = phonenumbers.parse(field.data)
+        if not (phonenumbers.is_valid_number(input_number)):
+            invalid_phone_handler()
+    except NumberParseException:
+        invalid_phone_handler()
 
 
 class VenueForm(Form):
@@ -99,7 +124,7 @@ class VenueForm(Form):
         'address', validators=[DataRequired()]
     )
     phone = StringField(
-        'phone', validators=[DataRequired(), Regexp(r'^[0-9\-\+]+$')]
+        'phone', validators=[DataRequired(), validate_phonenumber]
     )
     image_link = StringField(
         'image_link'
@@ -197,7 +222,7 @@ class ArtistForm(Form):
         ]
     )
     phone = StringField(
-        'phone', validators=[DataRequired(), Regexp(r'^[0-9\-\+]+$')]
+        'phone', validators=[DataRequired(), validate_phonenumber]
     )
     image_link = StringField(
         'image_link'
