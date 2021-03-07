@@ -281,21 +281,32 @@ def search_artists():
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
     artist = Artist.query.get(artist_id)
-    past_shows = []
-    upcoming_shows = []
     time_now = datetime.utcnow()
 
-    for show in artist.shows:
+    past_shows = db.session.query(Show).join(Artist).join(Venue).filter(Artist.id == artist_id,
+                                                                        Show.start_time < time_now).all()
+    upcoming_shows = db.session.query(Show).join(Artist).join(Venue).filter(Artist.id == artist_id,
+                                                                            Show.start_time > time_now).all()
+
+    past_shows_formatted = []
+    for show in past_shows:
         cur_show = {
             "venue_id": show.venue_id,
             "venue_name": show.venue.name,
             "venue_image_link": show.venue.image_link,
             "start_time": str(show.start_time)
         }
-        if show.start_time > time_now:
-            upcoming_shows.append(cur_show)
-        else:
-            past_shows.append(cur_show)
+        past_shows_formatted.append(cur_show)
+
+    upcoming_shows_formatted = []
+    for show in upcoming_shows:
+        cur_show = {
+            "venue_id": show.venue_id,
+            "venue_name": show.venue.name,
+            "venue_image_link": show.venue.image_link,
+            "start_time": str(show.start_time)
+        }
+        upcoming_shows_formatted.append(cur_show)
 
     data = {
         "id": artist.id,
@@ -306,10 +317,10 @@ def show_artist(artist_id):
         "phone": artist.phone,
         "seeking_venue": artist.seeking_venue,
         "image_link": artist.image_link,
-        "past_shows": past_shows,
+        "past_shows": past_shows_formatted,
         "facebook_link": artist.facebook_link,
         "website": artist.website,
-        "upcoming_shows": upcoming_shows,
+        "upcoming_shows": upcoming_shows_formatted,
         "past_shows_count": len(past_shows),
         "upcoming_shows_count": len(upcoming_shows),
     }
