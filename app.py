@@ -142,24 +142,43 @@ def search_venues():
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
-    venue = Venue.query.get(venue_id)
-
-    upcoming_shows = []
-    past_shows = []
-
+    venue = Venue.query.filter_by(id=venue_id).first_or_404()
     time_now = datetime.utcnow()
 
-    for show in venue.shows:
+    past_shows = db.session.query(Artist, Show).join(Show).join(Venue). \
+        filter(
+        Show.venue_id == venue_id,
+        Show.artist_id == Artist.id,
+        Show.start_time < time_now
+    ).all()
+
+    upcoming_shows = db.session.query(Artist, Show).join(Show).join(Venue). \
+        filter(
+        Show.venue_id == venue_id,
+        Show.artist_id == Artist.id,
+        Show.start_time > time_now
+    ).all()
+
+    past_shows_formatted = []
+    upcoming_shows_formatted = []
+
+    for show in past_shows:
         cur_show = {
-            "artist_id": show.artist_id,
-            "artist_name": show.artist.name,
-            "artist_image_link": show.artist.image_link,
-            "start_time": str(show.start_time)
+            "artist_id": show.Show.artist_id,
+            "artist_name": show.Artist.name,
+            "artist_image_link": show.Artist.image_link,
+            "start_time": str(show.Show.start_time)
         }
-        if show.start_time > time_now:
-            upcoming_shows.append(cur_show)
-        else:
-            past_shows.append(cur_show)
+        past_shows_formatted.append(cur_show)
+
+    for show in upcoming_shows:
+        cur_show = {
+            "artist_id": show.Show.artist_id,
+            "artist_name": show.Artist.name,
+            "artist_image_link": show.Artist.image_link,
+            "start_time": str(show.Show.start_time)
+        }
+        upcoming_shows_formatted.append(cur_show)
 
     data = {
         "id": venue.id,
@@ -173,8 +192,8 @@ def show_venue(venue_id):
         "facebook_link": venue.facebook_link,
         "seeking_talent": venue.seeking_talent,
         "image_link": venue.image_link,
-        "past_shows": past_shows,
-        "upcoming_shows": upcoming_shows,
+        "past_shows": past_shows_formatted,
+        "upcoming_shows": upcoming_shows_formatted,
         "past_shows_count": len(past_shows),
         "upcoming_shows_count": len(upcoming_shows),
     }
