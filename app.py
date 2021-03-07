@@ -145,6 +145,30 @@ def show_venue(venue_id):
     venue = Venue.query.filter_by(id=venue_id).first_or_404()
     time_now = datetime.utcnow()
 
+    """
+    SELECT 
+        artist.id AS artist_id, 
+        artist.name AS artist_name, 
+        artist.city AS artist_city, 
+        artist.state AS artist_state, 
+        artist.phone AS artist_phone, 
+        artist.genres AS artist_genres, 
+        artist.image_link AS artist_image_link, 
+        artist.facebook_link AS artist_facebook_link, 
+        artist.website AS artist_website, 
+        artist.seeking_venue AS artist_seeking_venue, 
+        artist.seeking_description AS artist_seeking_description, 
+        artist.created_date AS artist_created_date, 
+        show.id AS show_id, 
+        show.venue_id AS show_venue_id, 
+        show.artist_id AS show_artist_id, 
+        show.start_time AS show_start_time 
+    FROM 
+        artist JOIN show ON artist.id = show.artist_id JOIN venue ON venue.id = show.venue_id 
+    WHERE 
+        show.venue_id = %(venue_id_1)s AND show.artist_id = artist.id AND show.start_time < %(start_time_1)s¬
+    """
+
     past_shows = db.session.query(Artist, Show).join(Show).join(Venue). \
         filter(
         Show.venue_id == venue_id,
@@ -301,6 +325,19 @@ def search_artists():
 def show_artist(artist_id):
     artist = Artist.query.get(artist_id)
     time_now = datetime.utcnow()
+
+    # equivalent postgres code
+    """
+    SELECT 
+        show.id AS show_id,
+        show.venue_id AS show_venue_id,
+        show.artist_id AS show_artist_id, 
+        show.start_time AS show_start_time 
+    FROM 
+        show JOIN artist ON artist.id = show.artist_id JOIN venue ON venue.id = show.venue_id 
+    WHERE 
+        artist.id = %(id_1)s AND show.start_time < %(start_time_1)s
+    """
 
     past_shows = db.session.query(Show).join(Artist).join(Venue).filter(Artist.id == artist_id,
                                                                         Show.start_time < time_now).all()
